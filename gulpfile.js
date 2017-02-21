@@ -8,6 +8,7 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     minifyHTML = require('gulp-minify-html'),
     minifyCSS = require('gulp-minify-css'),
+    jsonminify = require('gulp-jsonminify'),
     concat = require('gulp-concat');
 
 var env,
@@ -20,7 +21,7 @@ var env,
     sassStyl;
 
 //env = process.env.NODE_ENV || 'development';
-env = 'development';
+env = 'production';
 
 if (env==='development') {
   outputDir = 'builds/development/';
@@ -74,7 +75,7 @@ gulp.task('watch', function() {
   gulp.watch(jsSources, ['js']);
   gulp.watch('components/sass/*.scss', ['compass']);
   gulp.watch('builds/development/*.html', ['html']);
-  gulp.watch(jsonSources, ['json']);
+  gulp.watch('builds/development/js/*.json', ['json']);
 });
 
 gulp.task('connect', function() {
@@ -92,7 +93,9 @@ gulp.task('html', function() {
 });
 
 gulp.task('json', function() {
-  gulp.src(jsonSources)
+  gulp.src('builds/development/js/*.json')
+    .pipe(gulpif(env === 'production', jsonminify()))
+    .pipe(gulpif(env === 'production', gulp.dest('builds/production/js')))
     .pipe(connect.reload())
 });
 
